@@ -3,6 +3,8 @@ import "@nomicfoundation/hardhat-toolbox";
 import * as dotenv from "dotenv";
 import "dotenv/config";
 import "hardhat-deploy";
+import "@nomiclabs/hardhat-solhint";
+import "@nomiclabs/hardhat-ethers";
 
 dotenv.config();
 
@@ -14,14 +16,8 @@ const config: HardhatUserConfig = {
       },
     ],
   },
-  defaultNetwork: "goerli",
+  //defaultNetwork: "goerli",
   networks: {
-    rinkeby: {
-      url: process.env.RINKEBY_URL || "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-      chainId: 4,
-    },
     localhost: {
       url: "http://127.0.0.1:8545/",
       chainId: 31337,
