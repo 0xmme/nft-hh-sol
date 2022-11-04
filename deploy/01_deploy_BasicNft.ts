@@ -2,7 +2,6 @@ import { network } from "hardhat";
 import { DeployFunction } from "hardhat-deploy/dist/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { devChains, networkConfig } from "../helper-hardhat-config";
-import { BasicNft } from "../typechain-types";
 import verify from "../utils/verify/verify";
 
 const deployBasicNft: DeployFunction = async (
@@ -16,7 +15,7 @@ const deployBasicNft: DeployFunction = async (
   log("------- deployment started --------");
   const args: any[] = [];
 
-  const basicNft: BasicNft = await deploy("BasicNft", {
+  const basicNft = await deploy("BasicNft", {
     from: deployer,
     args: args,
     log: true,

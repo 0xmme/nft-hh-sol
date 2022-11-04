@@ -24,13 +24,7 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ConfirmedOwner, ERC721URIStorage {
     uint64 private immutable i_subscriptionId;
     uint256[] public requestIds;
     uint256 public lastRequestId;
-    // The gas lane to use, which specifies the maximum gas price to bump to.
-    // For a list of available gas lanes on each network,
-    // see https://docs.chain.link/docs/vrf/v2/subscription/supported-networks/#configurations
-    bytes32 private keyHash =
-        0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
-    uint32 callbackGasLimit = 100000;
-    uint16 requestConfirmations = 3;
+
     uint32 numWords = 1;
 
     /**@notice NFT variables */
@@ -47,10 +41,15 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ConfirmedOwner, ERC721URIStorage {
     mapping(uint256 => string) private s_UriOfToken;
     uint256 internal constant MAX_CHANCE_VALUE = 10;
     uint256 internal immutable i_mintFee;
+    bytes32 private immutable i_gasLane;
+    uint32 private immutable i_callbackGasLimit;
+    uint16 private constant REQUEST_CONFIRMATIONS = 3;
 
     constructor(
-        uint64 subscriptionId,
         address vrfCoordinatorAddress,
+        uint64 subscriptionId,
+        bytes32 gasLane, // keyHash
+        uint32 callbackGasLimit,
         string[3] memory dogTokenUris,
         uint256 mintFee
     )
@@ -60,6 +59,8 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ConfirmedOwner, ERC721URIStorage {
     {
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinatorAddress);
         i_subscriptionId = subscriptionId;
+        i_gasLane = gasLane;
+        i_callbackGasLimit = callbackGasLimit;
         s_tokenUrisList = dogTokenUris;
         i_mintFee = mintFee;
     }
@@ -70,10 +71,10 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ConfirmedOwner, ERC721URIStorage {
 
         // Will revert if subscription is not set and funded.
         requestId = COORDINATOR.requestRandomWords(
-            keyHash,
+            i_gasLane,
             i_subscriptionId,
-            requestConfirmations,
-            callbackGasLimit,
+            REQUEST_CONFIRMATIONS,
+            i_callbackGasLimit,
             numWords
         );
         s_requests[requestId] = RequestStatus({
