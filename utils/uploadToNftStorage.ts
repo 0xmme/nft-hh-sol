@@ -14,6 +14,8 @@ const NFT_STORAGE_KEY = process.env.NFT_STORAGE_KEY!;
  * @param {string} description a text description for the NFT
  */
 export async function storeNFTs(imagesPath: string) {
+  console.log("------- storeNFTs() started --------");
+
   const fullImagesPath = path.resolve(imagesPath);
   const files = fs.readdirSync(fullImagesPath);
   let responses = [];
@@ -30,6 +32,8 @@ export async function storeNFTs(imagesPath: string) {
     });
     responses.push(response);
   }
+  console.log(responses);
+
   return responses;
 }
 

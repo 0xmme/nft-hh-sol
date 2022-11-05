@@ -26,7 +26,7 @@ export const networkConfig: networkConfigInfo = {
     subscriptionId: 0,
     callbackGasLimit: 500000,
     raffleInterval: 30,
-    mintFee: "10000000000000000", // 0.01 ETH
+    mintFee: "0.001",
   },
   hardhat: {
     blockConfirmations: 1,
@@ -36,6 +36,7 @@ export const networkConfig: networkConfigInfo = {
     subscriptionId: 0,
     callbackGasLimit: 500000,
     raffleInterval: 30,
+    mintFee: "0.001",
   },
   goerli: {
     vrfCoordinatorV2: "0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D",
@@ -43,8 +44,7 @@ export const networkConfig: networkConfigInfo = {
     entranceFee: ethers.utils.parseEther("0.01"),
     gasLane:
       "0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15",
-    mintFee: "10000000000000000", // 0.01 ETH
-
+    mintFee: "0.001",
     subscriptionId: 6076,
     callbackGasLimit: 500000,
     raffleInterval: 30,
