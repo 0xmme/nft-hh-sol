@@ -1,7 +1,7 @@
 import { ethers, deployments, network } from "hardhat";
-import { BasicNft } from "../typechain-types";
+import { BasicNft } from "../../typechain-types";
 import { Signer } from "ethers";
-import { devChains } from "../helper-hardhat-config";
+import { devChains } from "../../helper-hardhat-config";
 import assert from "assert";
 
 !devChains.includes(network.name)

@@ -57,6 +57,7 @@ const deployRandomIpfsNft: DeployFunction = async (
       tempArr.push(tokenUrisRAW[i].url);
     }
     tokenUris = tempArr;
+    console.log(tokenUris);
   } else {
     tokenUris = [
       "ipfs://bafyreiflh4wjd2shgk2kguff5gl5uv6ifpdszfgfep2itve3tdzqugx7mu/metadata.json",
@@ -90,10 +91,11 @@ const deployRandomIpfsNft: DeployFunction = async (
     waitConfirmations: networkConfig[network.name].blockConfirmations || 1,
   });
 
-  //if (!devChains.includes(network.name)) {
-  //  log("------- verifying started --------");
-  //  await verify(randomIpfsNft.address, args);
-  //}
+  if (!devChains.includes(network.name)) {
+    log("------- verifying started --------");
+
+    await verify(randomIpfsNft.address, args);
+  }
 };
 
 const handleTokenUris = async (path: string) => {
