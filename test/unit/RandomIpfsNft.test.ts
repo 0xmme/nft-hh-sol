@@ -1,13 +1,14 @@
 import { ethers, deployments, network } from "hardhat";
-import { BasicNft } from "../../typechain-types";
+import { RandomIpfsNft } from "../../typechain-types";
 import { Signer } from "ethers";
-import { devChains } from "../../helper-hardhat-config";
+import { devChains, networkConfig } from "../../helper-hardhat-config";
+
 import assert from "assert";
 
 !devChains.includes(network.name)
   ? describe.skip
-  : describe("BasicNft", function () {
-      let basicNft: BasicNft;
+  : describe("RandomIpfsNft", function () {
+      let RandomIpfsNft: RandomIpfsNft;
       let deployer: Signer;
 
       beforeEach(async () => {
@@ -16,17 +17,19 @@ import assert from "assert";
 
         await deployments.fixture(["all"]);
 
-        basicNft = await ethers.getContract("BasicNft", deployer);
+        RandomIpfsNft = await ethers.getContract("RandomIpfsNft", deployer);
       });
 
       it("should mint a NFT upon request", async () => {
-        const tx = await basicNft.mintNft();
+        const tx = await RandomIpfsNft.requestNft({
+          value: ethers.utils.parseEther(networkConfig[network.name].mintFee!),
+        });
         await tx.wait(1);
 
-        const tokenUri = await basicNft.tokenURI(0);
-        const tokenCount = await basicNft.getTokenCount();
+        const tokenUri = await RandomIpfsNft.tokenURI(0);
+        console.log(tokenUri);
+        const tokenCount = await RandomIpfsNft.getTokenCount();
 
         assert.equal(tokenCount.toString(), "1");
-        assert.equal(await basicNft.TOKEN_URI(), tokenUri);
       });
     });
