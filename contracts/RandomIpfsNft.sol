@@ -38,7 +38,6 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ConfirmedOwner, ERC721URIStorage {
 
     uint256 internal s_tokenCount;
     string[] internal s_tokenUrisList;
-    mapping(uint256 => string) private s_UriOfToken;
     uint256 internal constant MAX_CHANCE_VALUE = 10;
     uint256 internal immutable i_mintFee;
     bytes32 private immutable i_gasLane;
@@ -110,25 +109,6 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ConfirmedOwner, ERC721URIStorage {
         emit NFTMinted(dogBreed, dogOwner);
     }
 
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI)
-        internal
-        override
-    {
-        require(
-            _exists(tokenId),
-            "ERC721URIStorage: URI set of nonexistent token"
-        );
-        s_UriOfToken[tokenId] = _tokenURI;
-    }
-
-    function _burn(uint256 tokenId) internal override {
-        super._burn(tokenId);
-
-        if (bytes(s_UriOfToken[tokenId]).length != 0) {
-            delete s_UriOfToken[tokenId];
-        }
-    }
-
     function withdraw() external onlyOwner {
         uint256 amount = address(this).balance;
         (bool success, ) = payable(msg.sender).call{value: amount}("");
@@ -158,26 +138,8 @@ contract RandomIpfsNft is VRFConsumerBaseV2, ConfirmedOwner, ERC721URIStorage {
         return [10, 30, MAX_CHANCE_VALUE];
     }
 
-    function getRequestStatus(uint256 _requestId)
-        external
-        view
-        returns (bool fulfilled, uint256[] memory randomWords)
-    {
-        require(s_requests[_requestId].exists, "request not found");
-        RequestStatus memory request = s_requests[_requestId];
-        return (request.fulfilled, request.randomWords);
-    }
-
     function getTokenCount() public view returns (uint256) {
         return s_tokenCount;
-    }
-
-    function getDogTokenURI(uint256 tokenId)
-        public
-        view
-        returns (string memory)
-    {
-        return s_UriOfToken[tokenId];
     }
 
     function getTokenUriList() public view returns (string[] memory) {

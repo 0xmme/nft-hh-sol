@@ -1,5 +1,5 @@
 import { ethers, deployments, network } from "hardhat";
-import { RandomIpfsNft } from "../../typechain-types";
+import { RandomIpfsNft, VRFCoordinatorV2Mock } from "../../typechain-types";
 import { BigNumber, Signer } from "ethers";
 import { devChains, networkConfig } from "../../helper-hardhat-config";
 
@@ -12,6 +12,7 @@ import { randomBytes } from "crypto";
   ? describe.skip
   : describe("RandomIpfsNft", function () {
       let RandomIpfsNft: RandomIpfsNft;
+      let vrfCoordinatorV2Mock: VRFCoordinatorV2Mock;
       let deployer: Signer;
 
       beforeEach(async () => {
@@ -21,6 +22,10 @@ import { randomBytes } from "crypto";
         await deployments.fixture(["all"]);
 
         RandomIpfsNft = await ethers.getContract("RandomIpfsNft", deployer);
+        vrfCoordinatorV2Mock = await ethers.getContract(
+          "VRFCoordinatorV2Mock",
+          deployer
+        );
       });
 
       describe("constructor", () => {
@@ -54,18 +59,58 @@ import { randomBytes } from "crypto";
 
       describe("fullfillRandomWords", () => {
         it("should mint a NFT, once randomWords are returned", async () => {
-          await new Promise(async (resolve, reject) => {
+          await new Promise<void>(async (resolve, reject) => {
             try {
               const mintFee: BigNumber = await RandomIpfsNft.getMintFee();
 
               const tx = await RandomIpfsNft.requestNft({
                 value: mintFee,
               });
-              console.log(tx);
+              const txr = await tx.wait(1);
+
+              const requestId = txr.events![1].args!.requestId;
+
+              await vrfCoordinatorV2Mock.fulfillRandomWords(
+                requestId,
+                RandomIpfsNft.address
+              );
             } catch (error) {
               reject(error);
             }
+
+            RandomIpfsNft.once("NFTMinted", async () => {
+              try {
+                const tokenCount = await RandomIpfsNft.getTokenCount();
+                assert.equal(tokenCount.toString(), "1");
+                const tokenURI = await RandomIpfsNft.tokenURI("0");
+                assert(tokenURI.toString().includes("ipfs://"));
+                resolve();
+              } catch (error) {
+                reject(error);
+              }
+            });
           });
+        });
+      });
+
+      describe("withdraw", () => {
+        it("should withdraw all funds to owner", async () => {
+          const mintFee: BigNumber = await RandomIpfsNft.getMintFee();
+          const tx = await RandomIpfsNft.requestNft({
+            value: mintFee,
+          });
+
+          await tx.wait(1);
+          const balAfterMint = await deployer.getBalance();
+
+          console.log(balAfterMint);
+
+          const txW = await RandomIpfsNft.withdraw();
+          await txW.wait(1);
+
+          const balAfterWithdraw = await deployer.getBalance();
+          console.log(balAfterWithdraw);
+          expect(balAfterWithdraw).to.be.greaterThan(balAfterMint);
         });
       });
     });
