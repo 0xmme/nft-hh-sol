@@ -71,8 +71,9 @@ contract DynamicSvgNft is ERC721 {
                             name(),
                             '","description":"A dynamic NFT that mints a different image according to the current ETH price."',
                             ',"attributes":"[{"trait_type":"coolness","value":"100"}]"',
-                            ',"image":',
-                            imgURI
+                            ',"image":"',
+                            imgURI,
+                            '"'
                         )
                     )
                 )
