@@ -3,7 +3,12 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployedContract } from "hardhat-deploy/types";
 import { network, ethers } from "hardhat";
-import { devChains, networkConfig } from "../helper-hardhat-config";
+import {
+  devChains,
+  networkConfig,
+  DECIMALS,
+  INITIAL_ANSWER,
+} from "../helper-hardhat-config";
 import { BigNumber } from "ethers";
 
 const deployFunc: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
@@ -25,7 +30,12 @@ const deployFunc: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         waitConfirmations: Number(networkConfig.blockConfirmations) || 1,
       }
     );
-    log(`Mock VRFCoordinatorV2 deployed at ${MockVrfCoordinatorV2.address}`);
+    await deploy("MockV3Aggregator", {
+      contract: "MockV3Aggregator",
+      from: deployer,
+      log: true,
+      args: [DECIMALS, INITIAL_ANSWER],
+    });
     log("-------------------------------------------------");
   }
 };

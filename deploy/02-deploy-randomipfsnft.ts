@@ -15,7 +15,7 @@ const deployRandomIpfsNft: DeployFunction = async (
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  log("------- mock setup started --------");
+  log("------- RandomIpfsNft deployment started --------");
 
   let vrfCoordinatorV2Address: string;
   let vrfCoordinatorV2Mock: VRFCoordinatorV2Mock;
@@ -44,10 +44,6 @@ const deployRandomIpfsNft: DeployFunction = async (
     subscriptionId = networkConfig[network.name].subscriptionId!;
   }
 
-  log("------- mocks setup --------");
-
-  log("------- NFT deployment started --------");
-
   const imgPath = "./images/random";
   let tokenUris: any[];
 
@@ -73,10 +69,6 @@ const deployRandomIpfsNft: DeployFunction = async (
     ];
   }
 
-  log("------- Upload to IPFS done --------");
-
-  log("------- setup args --------");
-
   const args: any[] = [
     vrfCoordinatorV2Address,
     subscriptionId,
@@ -85,8 +77,6 @@ const deployRandomIpfsNft: DeployFunction = async (
     tokenUris,
     mintfee,
   ];
-
-  log("------- deploy NFT --------");
 
   const randomIpfsNft = await deploy("RandomIpfsNft", {
     from: deployer,
@@ -105,8 +95,6 @@ const deployRandomIpfsNft: DeployFunction = async (
 };
 
 const handleTokenUris = async (path: string) => {
-  console.log("------- Upload to IPFS started --------");
-
   const response = await storeNFTs(path);
   return response;
 };

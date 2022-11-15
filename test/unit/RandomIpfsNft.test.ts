@@ -103,13 +103,10 @@ import { randomBytes } from "crypto";
           await tx.wait(1);
           const balAfterMint = await deployer.getBalance();
 
-          console.log(balAfterMint);
-
           const txW = await RandomIpfsNft.withdraw();
           await txW.wait(1);
 
           const balAfterWithdraw = await deployer.getBalance();
-          console.log(balAfterWithdraw);
           expect(balAfterWithdraw).to.be.greaterThan(balAfterMint);
         });
       });

@@ -4,6 +4,7 @@ import { ethers } from "hardhat";
 
 export interface networkConfigItem {
   vrfCoordinatorV2?: string;
+  usdEthPriceFeed?: string;
   blockConfirmations?: number;
   entranceFee?: BigNumber;
   gasLane?: string;
@@ -48,6 +49,7 @@ export const networkConfig: networkConfigInfo = {
     subscriptionId: 6076,
     callbackGasLimit: 500000,
     raffleInterval: 30,
+    usdEthPriceFeed: "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
   },
 };
 

@@ -3,24 +3,33 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "base64-sol/base64.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract DynamicSvgNft is ERC721 {
+    event CreatedNFT(uint256 indexed tokenId, int256 highValue);
+
     uint256 private s_tokenCount;
+    mapping(uint256 => int256) public s_tokenIdToHighValue;
     string private i_HighImgURI;
     string private i_LowImgURI;
+    AggregatorV3Interface private immutable i_Pricefeed;
 
-    constructor(string memory highSvg, string memory lowSvg)
-        ERC721("SVGImageNFT", "SVG")
-    {
+    constructor(
+        string memory highSvg,
+        string memory lowSvg,
+        address aggregatorV3Address
+    ) ERC721("SVGImageNFT", "SVG") {
         s_tokenCount = 0;
         i_HighImgURI = svgToBase64(highSvg);
         i_LowImgURI = svgToBase64(lowSvg);
+        i_Pricefeed = AggregatorV3Interface(aggregatorV3Address);
     }
 
-    function mintNft() public returns (uint256) {
+    function mintNft(int256 highValue) public {
         _safeMint(msg.sender, s_tokenCount);
+        s_tokenIdToHighValue[s_tokenCount] = highValue;
+        emit CreatedNFT(s_tokenCount, highValue);
         s_tokenCount++;
-        return s_tokenCount;
     }
 
     function svgToBase64(string memory svg)
@@ -44,7 +53,13 @@ contract DynamicSvgNft is ERC721 {
     {
         _requireMinted(tokenId);
 
-        string memory imgURI = "test";
+        (, int256 price, , , ) = i_Pricefeed.latestRoundData();
+
+        string memory imgURI = i_LowImgURI;
+
+        if (price > s_tokenIdToHighValue[tokenId]) {
+            imgURI = i_HighImgURI;
+        }
 
         string memory customtokenURI = string(
             abi.encodePacked(
@@ -65,15 +80,25 @@ contract DynamicSvgNft is ERC721 {
         );
 
         return customtokenURI;
-        string memory baseURI = _baseURI();
-        //return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
     }
 
-    function _baseURI() internal view override returns (string memory) {
+    function _baseURI() internal pure override returns (string memory) {
         return "data:application/json;base64,";
     }
 
     function getTokenCount() public view returns (uint256) {
         return s_tokenCount;
+    }
+
+    function getLowSVG() public view returns (string memory) {
+        return i_LowImgURI;
+    }
+
+    function getHighSVG() public view returns (string memory) {
+        return i_HighImgURI;
+    }
+
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return i_Pricefeed;
     }
 }
